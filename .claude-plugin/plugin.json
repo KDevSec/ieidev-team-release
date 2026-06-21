@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "ieidev-team",
   "description": "ieidev 数字员工集群（自包含单插件）：编排引擎 + 记忆底座 + 业务员工 + 能力 skill。从 KDevSec/kdev-agents clean-room 抽取通用化。",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": { "name": "ly" },
   "license": "MIT",
   "keywords": ["digital-employee", "agent", "orchestration", "ieidev"],

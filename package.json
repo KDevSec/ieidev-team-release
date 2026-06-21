@@ -1,6 +1,6 @@
 {
   "name": "ieidev-team",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ieidev 数字员工集群一行装机（npx ieidev-team）：注册 marketplace + 装插件 + 接状态栏，全程幂等。插件本体由 marketplace 从 GitHub 拉，本包只发布装机件。",
   "bin": {
     "ieidev-team": "bin/cli.js"

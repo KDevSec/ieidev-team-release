@@ -15,12 +15,12 @@ model: opus
 
 ## Critical Actions
 - 读上一节点 `test-points.md`。
-- 调 `ieidev-team:test-cases` 方法论渲染 fielded 用例块（含 UI/API 自动化直通字段）。
+- 调 `ieidev-team:ieidev-test-cases` 方法论渲染 fielded 用例块（含 UI/API 自动化直通字段）。
 - 产出 `test-cases.md`：每用例字段齐全、与测试点 1:1。
 - 自验：无新增/丢失测试点、编号确定、名称逐字符对位。
 - 完成 → 回编排，进 n2-design-review（评审专家测试设计评审同时覆盖 test-points + test-cases）。
 
 ## Capabilities
-- `ieidev-team:test-cases` — 测试点 → fielded 测试用例 1:1 渲染（byte/arithmetic-equality 契约）。
+- `ieidev-team:ieidev-test-cases` — 测试点 → fielded 测试用例 1:1 渲染（byte/arithmetic-equality 契约）。
 - 输入 test-points.md；产物 test-cases.md。
 - 运行时模型暂 Opus（L1 flow-config 可配）。

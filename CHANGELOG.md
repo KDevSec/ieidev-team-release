@@ -4,6 +4,23 @@
 
 > 发版提示：`package.json`（npm 装机件）与 `.claude-plugin/plugin.json`（插件本体）的 `version` 需**同步 bump**，详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+## [0.1.2] - 2026-06-21
+
+全部 skill 名补 `ieidev-` 品牌前缀（防跨插件裸名冲突）。
+
+### Changed
+
+- **skill 名全加 `ieidev-` 前缀**：20 个 skill 目录 `skills/<x>/` → `skills/ieidev-<x>/`；SKILL.md frontmatter `name: <x>` → `name: ieidev-<x>`；全仓所有 `ieidev-team:<x>` 引用同步更新为 `ieidev-team:ieidev-<x>`。
+
+  受影响 skill：`api-autotest`、`ar-authoring`、`codegraph-{build,impact,spec-link,trace}`、`constitution-authoring`、`detailed-design-authoring`、`env-recon`、`flow-driver`、`frontend-design`、`goal`、`memory`、`qa`、`secure-coding`、`sr-authoring`、`test-{cases,points}`、`ui-autotest`、`uicase-to-apicase`。
+
+- **命令名不变**：`/ieidev-team:goal`、`/ieidev-team:flow-driver`、`/ieidev-team:memory-distill`、`/ieidev-team:memory-weekly`、`/ieidev-team:setup` 命令已被 CC 命名空间化，无裸名冲突，保持不变。
+
+### Notes
+
+- 测试：全套 **995** 用例全绿（本次新增断言钉死新 skill 名，零功能回归）。
+- API 变更：在 CC `/` 菜单中，skill 由 `/qa`、`/memory` 等裸名改为 `/ieidev-qa`、`/ieidev-memory` 等全局唯一名。
+
 ## [0.1.1] - 2026-06-21
 
 OMC 式**自包含装机**：npm 装机包自带完整插件本体，装机不再依赖源码仓库可达。

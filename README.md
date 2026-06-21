@@ -1,12 +1,3 @@
-> **📦 ieidev-team 发布 / 分发仓（public release repo）**
->
-> 本仓库分发 `ieidev-team` 的**自包含 npm 装机包**（v0.1.1+ 包内自带完整插件本体）。插件源码在私有仓维护。
-> ✅ **装机不依赖源码仓**：下载 [Releases](https://github.com/KDevSec/ieidev-team-release/releases) 的 `.tgz` →
-> `npm i -g ./ieidev-team-X.Y.Z.tgz && ieidev-team`（installer 用包内本地路径 `marketplace add` 装，
-> `plugin install` 复制进 `~/.claude` 缓存，全程不碰 git 源码仓）。
-
----
-
 # ieidev-team
 
 ieidev 数字员工集群——自包含单插件（编排引擎 + 记忆底座 + 业务员工 + 能力 skill）。

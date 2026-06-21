@@ -78,7 +78,7 @@ PYTHONPATH="$PLUGIN_ROOT/pyieidev" python3 -m ieidev_hud setup --workspace "$(pw
 
 ## 第 2 步：探测 playwright MCP（qa / ui-autotest 用）
 
-`ieidev-team:qa`（系统化 QA / 冒烟方法论）与 `ieidev-team:ui-autotest` 跑在 **playwright MCP**（`browser_*` / `mcp__*playwright*__browser_*` 工具控真实浏览器）。这是**运行时依赖**，不是第三方 skill 依赖。
+`ieidev-team:ieidev-qa`（系统化 QA / 冒烟方法论）与 `ieidev-team:ieidev-ui-autotest` 跑在 **playwright MCP**（`browser_*` / `mcp__*playwright*__browser_*` 工具控真实浏览器）。这是**运行时依赖**，不是第三方 skill 依赖。
 
 探测：检查当前会话是否已有 `browser_navigate` / `browser_snapshot` 等 `playwright` MCP 工具可用（看工具清单里有没有 `playwright` 命名空间的 `browser_*`）。
 

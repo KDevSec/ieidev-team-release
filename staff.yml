@@ -33,7 +33,7 @@ employees:
   test-engineer:
     display: 测试工程师
     kind: flow-owner
-    flow_skill: null                 # 方法论分散在 ieidev-team:test-points/cases/ui-autotest 能力 skill，无统一 flow-skill
+    flow_skill: null                 # 方法论分散在 ieidev-team:ieidev-test-points/cases/ui-autotest 能力 skill，无统一 flow-skill
     node_tables:                     # 多 flow flow-owner：2 个 relay flow（同 slug 接力 baton）。dev/req 仍用 node_table 单数
       test-design-flow: orchestration/test-engineer.design.node-table.yml
       test-exec-flow:   orchestration/test-engineer.exec.node-table.yml

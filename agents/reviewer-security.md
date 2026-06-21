@@ -15,7 +15,7 @@ model: opus
 - **历史校准**：启动即 `recall(/staff/reviewer, subject:review:security)`，据过往漏洞模式校准尺度。
 
 ## Critical Actions
-1. **Read 产物 + standards + recall**：Read `security.md` + diff（`diff_range` 来自 request）+ 上游锚点（公司安全标准如 ieidev-team:secure-coding 八类、OWASP Top 10、`src/` 改动面）+ `standards/reviewer/安全评审.md`；启动先 `recall(scope=/staff/reviewer, subject:review:security)`。
+1. **Read 产物 + standards + recall**：Read `security.md` + diff（`diff_range` 来自 request）+ 上游锚点（公司安全标准如 ieidev-team:ieidev-secure-coding 八类、OWASP Top 10、`src/` 改动面）+ `standards/reviewer/安全评审.md`；启动先 `recall(scope=/staff/reviewer, subject:review:security)`。
 2. **按维度打分**：逐维核 checklist，4 维 × 25：① OWASP/注入（无 SQL/命令/模板注入、无 XSS/SSRF/反序列化、依赖供应链无高危 CVE、无 eval/pickle）② 认证授权（无绕过、无越权、会话/token 安全）③ 数据安全（敏感数据加密、无密钥硬编码、日志不泄露）④ 输入校验（外部输入全校验、边界/类型/长度、文件上传白名单）。total = Σ 维度。
 3. **出评分表**（spec §4.2 schema）：写 `handoffs/reviewer/g-sec-review.security.score.md`，含 `cap/target/total/dimensions/issues/verdict`；verdict 由双重通过条件机械推出（`total≥85 AND 🔴=0` 才 PASS）。
 4. **不改产物、回编排**：评分表写完即返回 `reviewer-orchestrator`。绝不动 src/security.md。

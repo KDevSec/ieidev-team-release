@@ -19,6 +19,6 @@ model: opus
 - 完成 → 回编排；node 10 第三方安全评审由编排发函 `ieidev-team:reviewer-orchestrator` → verdict → `record-gate --by reviewer-expert`（L1 `reviewer: self` 时回退自评）。
 
 ## Capabilities
-- `ieidev-team:secure-coding` — 安全编码标准自检（按需）。
+- `ieidev-team:ieidev-secure-coding` — 安全编码标准自检（按需）。
 
 运行时模型暂 Opus（L1 flow-config 可配）。

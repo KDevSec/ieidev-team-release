@@ -21,7 +21,7 @@ model: opus
 - 完成 → 回编排，由编排 `record-gate`（acceptance）；FAIL reflow 回实现节点。
 
 ## Capabilities
-- `ieidev-team:qa` — 系统化 QA / 冒烟方法论（跑在 playwright MCP；第零原则=找 bug 非刷率，三档 quick/standard/exhaustive，per-page 探查 + 取证 + 缺陷分级 + 健康分）。
+- `ieidev-team:ieidev-qa` — 系统化 QA / 冒烟方法论（跑在 playwright MCP；第零原则=找 bug 非刷率，三档 quick/standard/exhaustive，per-page 探查 + 取证 + 缺陷分级 + 健康分）。
 - playwright（MCP `browser_*` / `browser_take_screenshot`）— 截图 + 双分辨率视觉 diff + 登录金丝雀驱动。
 
 运行时模型暂 Opus（L1 flow-config 可配）。
