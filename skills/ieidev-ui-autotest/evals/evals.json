@@ -1,0 +1,26 @@
+{
+  "skill_name": "ieidev-team:ieidev-ui-autotest",
+  "evals": [
+    {
+      "id": 1,
+      "name": "write-new-case",
+      "prompt": "我在 D:\\ClaudeCode\\KDevSec\\playwrighttest 项目里要给项目列表页加一条 TC-014：新增项目，基础信息 Tab 填名称（不重名）、选第一个产品线、填项目简称；保存成功后回列表按名称能搜到该行。请帮我把用例代码写到 tests/test_ar03_project_manual.py 里（如果文件不存在就新建）。我已经有 pages/project_page.py（含 ProjectListPage / ProjectFormPage）和 pages/base_page.py。直接给完整文件内容即可，不需要解释。",
+      "expected_output": "test_ar03_project_manual.py 文件内容：函数名 test_tc014_*；至少 3 个 marker（ar03 + basic + p1）；docstring 第一行写用例标题；用 unique_name 生成名字；用 logged_page fixture；用 step()；用 BasePage.assert_save_success；下拉用 select_first_dropdown 或 select_first_option_by_label，不裸调 page.locator。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "elplus-dropdown",
+      "prompt": "我在 pages/version_page.py 里写了这一段，运行后 Element is not visible，headed 模式看下拉确实是关闭的：\n\n```python\nself.page.locator('.el-form-item:has(.el-form-item__label:text-is(\"产品线\")) .el-select').click()\nself.page.wait_for_timeout(300)\nself.page.locator('.el-select-dropdown__item:has-text(\"操作系统\")').click()\n```\n\n怎么改才稳？给具体代码 + 一句话说为什么。",
+      "expected_output": "改成 self.select_option_by_label(\"产品线\", \"操作系统\")（或 BasePage 上等价方法）；说明根因是 Element-Plus 下拉面板挂在 body 下，关闭后以 display:none 留存 DOM，:visible 判定与人眼不一致——会命中隐藏项；提到 BasePage 已用 boundingClientRect 双重判定。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "defects-csv",
+      "prompt": "我跑完 pytest tests/test_ar06_version_manual.py 后，reports/defects_20260427_120000.csv 里有 3 条失败：\n- TC-051：原因分析『后端接口422异常』\n- TC-053：原因分析『UI 漏校验：超长/非法值未拦截，直接保存成功』\n- TC-058：原因分析『（待人工分析）』\n\n这三条分别该怎么处理？要修脚本、改用例文档还是提 issue？",
+      "expected_output": "TC-051 → 真实后端缺陷（类别 C），提 issue，不 xfail，作回归看门狗；TC-053 → 真实 UI 缺陷（类别 C），提 issue；TC-058 → 调查动线：看截图 + logs/test_run_<ts>.log + 对应步骤序列，按三分法判定，必要时给 _classify_root_cause 补一条新规则。每条都要给具体下一步动作（不是空话）。",
+      "files": []
+    }
+  ]
+}

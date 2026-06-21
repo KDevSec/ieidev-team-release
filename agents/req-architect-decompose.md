@@ -17,7 +17,10 @@ model: opus
 - 调 `ieidev-team:ieidev-ar-authoring` 把 SR 细化成用户故事（每条带 Given-When-Then 验收标准）。
 - 产出迭代计划 + 用户故事列表，落 `.ieidev/features/<slug>/handoffs/req-architect/`（如 ar.md / 用户故事列表）。
 - 自验：用户故事覆盖每个 SR、每条可独立验收、不重复 SR 的不做清单。
-- 完成 → 回编排：编排 `add-story` 入账 + advance 进 n4-prototype（与原型共用 n5 评审 gate）。
+- 🔴 **必做（漏则 HUD 故事=0/0、验收无法追踪、CQO L-a 触发 WARN）**：每条用户故事产出后立即调：
+  `PYTHONPATH=${CLAUDE_PLUGIN_ROOT}/pyieidev python3 -m ieidev_core add-story design-flow <slug> --id US-N --title "<故事标题>"`
+  **每条 US 一次 add-story，不能批量一次性忽略**。stories[] 是 HUD 完成度分母，不调则进度恒 0%。
+- 完成 → 回编排：编排确认 stories[] 已全部入账后 advance 进 n4-prototype（与原型共用 n5 评审 gate）。
 
 ## Capabilities
 - `ieidev-team:ieidev-ar-authoring` — SR → AR 用户故事细化（含 GWT 验收标准）。

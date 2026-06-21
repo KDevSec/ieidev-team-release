@@ -18,10 +18,11 @@
     不拖慢别的 bash。
   - **best-effort 烟雾报警**：规则是确定性的「可疑」提示，不是判决；深判交 L-b LLM agent。
 
-MVP 规则集（3 条，可扩展；每条都对应 spec §4.4 L-a 行的例子）：
+MVP 规则集（4 条，可扩展；每条都对应 spec §4.4 L-a 行的例子）：
   R1 record-gate-by-mismatch  —— review-kind gate 的 verdict by 不是评审专家（被自评糊弄）
   R2 advance-past-impl-no-tests —— advance 过 TDD 实现节点但 workspace 无任何测试文件
   R3 gate-pass-artifact-missing —— record-gate PASS 但对应 node handoff 列的产物文件不存在
+  R4 advance-past-decompose-no-stories —— advance 离开 decompose 节点但 stories[]==[]（add-story 漏调）
 """
 from __future__ import annotations
 
@@ -142,6 +143,39 @@ def parse_event_call(cmd: str) -> dict | None:
 
 # ---------- helpers ----------
 
+
+def _get_stories(workspace: str, slug: str | None) -> list:
+    """从 flow-state.json 读 stories[]；缺文件 / 坏 JSON → []（降级静默）。"""
+    import json as _json
+    if not slug:
+        return []
+    p = Path(workspace) / ".ieidev" / "features" / slug / "flow-state.json"
+    if not p.is_file():
+        return []
+    try:
+        data = _json.loads(p.read_text(encoding="utf-8"))
+        return data.get("stories") or []
+    except (ValueError, OSError):
+        return []
+
+
+def _last_from_node(workspace: str, slug: str | None) -> str | None:
+    """读 flow-state.json phase_history 最后一跳的 from 节点；缺失 / 坏 JSON → None。"""
+    import json as _json
+    if not slug:
+        return None
+    p = Path(workspace) / ".ieidev" / "features" / slug / "flow-state.json"
+    if not p.is_file():
+        return None
+    try:
+        data = _json.loads(p.read_text(encoding="utf-8"))
+        history = data.get("phase_history") or []
+        if not history:
+            return None
+        return history[-1].get("from")
+    except (ValueError, OSError, IndexError):
+        return None
+
 def _by_is_reviewer(by: str | None) -> bool:
     if not by:
         return False
@@ -246,6 +280,30 @@ def _rule_impl_no_tests(parsed: dict, workspace: str) -> dict | None:
     }
 
 
+def _rule_decompose_no_stories(parsed: dict, workspace: str) -> dict | None:
+    """R4：advance 离开 decompose 节点但 stories[]==[] → 疑似 add-story 漏调。
+
+    使用 phase_history[-1].from 检测「刚离开 decompose」，避免依赖硬编码后继节点名。
+    """
+    if parsed["subcommand"] != "advance":
+        return None
+    from_node = _last_from_node(workspace, parsed.get("slug"))
+    if not from_node or "decompose" not in from_node:
+        return None
+    if _get_stories(workspace, parsed.get("slug")):
+        return None
+    return {
+        "rule": "advance-past-decompose-no-stories",
+        "severity": "🟡",
+        "node": from_node,
+        "detail": (
+            f"advance 离开 decompose 节点 {from_node!r}，但 stories[]==[]"
+            "——req-architect-decompose 应对每条用户故事调 `ieidev_core add-story`"
+            "（HUD 完成度分母），漏调会导致 HUD「用户故事 0/0」、验收无法追踪。"
+        ),
+    }
+
+
 def _rule_pass_artifact_missing(parsed: dict, workspace: str) -> dict | None:
     """R3：record-gate PASS 但对应 node handoff 声明的产物文件不存在 → 疑似空过。"""
     if parsed["subcommand"] != "record-gate":
@@ -281,6 +339,7 @@ def evaluate_rules(parsed: dict | None, events: list, workspace: str) -> list[di
     for fn, needs_ws in (
         (_rule_by_mismatch, False),
         (_rule_impl_no_tests, True),
+        (_rule_decompose_no_stories, True),
         (_rule_pass_artifact_missing, True),
     ):
         hit = fn(parsed, workspace) if needs_ws else fn(parsed)

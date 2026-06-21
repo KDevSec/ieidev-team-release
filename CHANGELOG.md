@@ -4,6 +4,23 @@
 
 > 发版提示：`package.json`（npm 装机件）与 `.claude-plugin/plugin.json`（插件本体）的 `version` 需**同步 bump**，详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+## [0.1.3] - 2026-06-21
+
+活体 dogfood（v0.1.2 首跑）暴露问题批修（#1/#3/#4/#5/#6）。
+
+### Fixed
+
+- **#1 状态栏空白（🔴）**：`setup.py:build_statusline_command` 去掉 `--workspace ${workspaceFolder}`——CC 不展开该变量导致 argparse 报错、状态栏每次刷新均空白；改为只发 `statusline`，workspace 由 stdin JSON cwd 自动解析。
+- **#4 HUD 进度恒 0%（🟡）**：`req-architect-decompose.md` 将 `add-story` 升级为 🔴 必做并写明后果；`cqo_la.py` 新增 R4 规则 `advance-past-decompose-no-stories`（利用 `phase_history[-1].from` 检测离开 decompose 节点时 `stories[]` 为空 → 落 WARN 信号）。
+- **#5 全自动下 human_gate 不保证硬停（🟡）**：`goal SKILL.md` §3.3 step4 + §5 新增诚实债 4，明示 `auto + skipAutoPermissionPrompt` 下 human_gate 为建议性停靠、不保证硬停，并注明后续计划与当前工作方式。
+- **#3a handoff-write 晦涩报错（⚪）**：`cli.py:cmd_handoff_write` 捕获 `JSONDecodeError` 并重抛带 `--gate-input 须合法 JSON` 提示的 `ValueError`，取代原来的 `Expecting value: line 1 column 1`。
+- **#3b show 命令 flow 不符返回全 null（⚪）**：`show <wrong-flow> <slug>` 现在在输出中追加 `_note` 字段明示 flow 不符并指出实际 flow，避免歧义；按 slug 取真状态逻辑不变。
+- **#6 产物落点不一致（⚪）**：`node-agent-routing.md` 新增「产物落点规范」section，统一约定 `handoffs/<emp>/` 为权威 baton 源，`docs/` 副本为可选人类浏览副本、不作机器输入。
+
+### Notes
+
+- 测试：全套 **1001** 用例全绿（新增 6 个 TDD 测试：R4 CQO 规则×3、goal 诚实债串×1、bad JSON 报错×1、show flow 不符×1）。
+
 ## [0.1.2] - 2026-06-21
 
 全部 skill 名补 `ieidev-` 品牌前缀（防跨插件裸名冲突）。

@@ -1,0 +1,40 @@
+{
+  "skill_name": "ieidev-team:ieidev-test-points",
+  "notes": "v2 evals — Phase 1 behavior changes: (a) no --example → skill must STOP and ask user for AR-prefix / role / module-number conventions, NOT fabricate AR-SATP- default; (b) audit-OFF default unchanged from v1; (c) project anchors (FR-002 / FR-004 / SC-00x / del_flag / 超级管理员) only appear in output when present in --example / project MOD, never injected by skill itself.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "spec-with-kdev-mod-example-v2",
+      "prompt": "/test-points --input /home/sec/project/SOP_test/specs/001-pl-project-version-mgmt/spec.md --example /home/sec/project/ClaudeCodeTest/docs/SOP_测试点MODv2.md --output /tmp/eval-v2-1-output.md\n\n这是一个针对 RuoYi-Vue3-FastAPI 项目的内部 spec（4 个 User Story / FR-001 ~ FR-023 / SC-001 ~ SC-007）。请按 example 模板（MODv2，本项目当前默认契约的 v2 实验版本）的列定义渲染测试点表格。",
+      "expected_output": "Mode 自动判定为 feature-spec-lite（example 是 fielded-template style：含 `AR-SATP-XX.YYY.ZZZ` 三段 AR 编号 + 测试点标题/预期/类型/准入 等 ≤9 列）。AR 前缀从 example 抽到 `AR-SATP-`（不是 skill 内写死的默认）；角色从 example/MODv2 §3.6 抽到 `超级管理员`；模块号 04/05/06/99 语义从 example §1.5 抽出。CRUD 拆 3 AR（通用 floor 来自 skill v2 §3.2）+ FR-002 del_flag inline、FR-004 4 要素 inline、API 直连关联已删拒绝（项目业务断言来自 MODv2 §3.6 CRUD 三件套的项目业务断言细节段）。性能整体 OOS（不出现任何 ≤Ns 行；OOS 标注引用 MODv2 §7.6 措辞模板）。companion <stem>-audit.md 因未传 `--audit` **不生成**。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "spec-no-example-must-stop-and-ask",
+      "prompt": "/test-points --input /home/sec/project/SOP_test/specs/001-pl-project-version-mgmt/spec.md --output /tmp/eval-v2-2-output.md\n\n直接生成测试设计文档（未提供 --example，未指明任何项目特定约束）。",
+      "expected_output": "**关键 v2 行为变更**：skill **必须停下来要求用户提供** AR 前缀（或 `--example <project-MOD>`）+ 角色术语 + 模块号语义；**不允许**像 v1 那样默认使用 `AR-SATP-` / `超级管理员`。skill 给用户的提示应明确说明：'本 skill 是通用测试设计引擎，不预设项目特定值；请提供 --example 指向项目 MOD 或显式声明 AR 前缀、角色、模块号约定。' 如果用户在后续追加 `--example`，skill 才继续生成 feature-spec mode 输出（无 example 的 feature-spec mode 已被本规则禁止）。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "small-api-contract-no-project-anchors",
+      "prompt": "/ieidev-team:ieidev-test-points\n\n请为以下单一 API 接口契约设计测试点（无完整 PRD，无外部模板）：\n\nPOST /api/projects\nRequest body (JSON):\n  - name: string, 1-128 chars, required, unique within productLineId\n  - productLineId: int, required, must reference existing non-deleted productLine\n  - code: string, 1-32 chars, required, globally unique\n  - status: enum {planning, in_progress, completed}, required\n  - svnUrl: string, optional, must start with svn:// or http(s):// if provided\n\nResponse:\n  - 201 + project object on success\n  - 400 + 中文错误消息 on validation failure\n  - 409 + 中文冲突说明 on uniqueness violation\n  - 422 + 字段错误明细 on type/format error",
+      "expected_output": "Mode 自动判定为 api-contract（用户粘贴单一接口契约）。由于 api-contract mode 也不预设项目锚点，skill 应当：(a) 询问用户期望的 AR 前缀（或允许用户跳过 AR 编号、直接以 endpoint 路径作为分组锚点），或 (b) 用一个明显非项目化的临时前缀（如 `AR-API-` 或 `AR-EXAMPLE-`）+ 在输出顶部声明 '注：未提供 example，AR 前缀为占位'。**不可**默认 `AR-SATP-`。技术覆盖应到位：name 长度边界 0/1/2/127/128/129、code 边界、svnUrl 协议合法/非法（Syntax）、productLineId 不存在/已删除、唯一性 4 个组合（DT）、status 枚举内/外（EP）。性能整体 OOS（无 ≤Ns 行）。companion 不生成（未传 --audit）。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "rejects-testpoints-input-unchanged-from-v1",
+      "prompt": "/test-points --input /tmp/example-testpoints.md --example /home/sec/project/ClaudeCodeTest/docs/SOP_测试用例MOD.md --output /tmp/eval-v2-4-output.md\n\n用上游已生成的 测试点 .md 配 fielded-block example 跑一遍。",
+      "expected_output": "行为与 v1 一致：skill 应在 workflow step 2 识别输入是已生成的 测试点 .md（含 `### AR-[A-Z]+-\\d{2}\\.\\d{3}\\.\\d{3}` 头 + 编号表格行），停止生成并提示用户改用 ieidev-team:ieidev-test-cases 进行 fielded 渲染，而不是误把它当作 raw spec 再走一遍测试设计。"
+    },
+    {
+      "id": 5,
+      "name": "cross-project-vfadmin-spec-no-AR-SATP-pollution",
+      "prompt": "/test-points --input /tmp/vfadmin-spec.md --example /tmp/vfadmin-MOD.md --output /tmp/eval-v2-5-output.md\n\n（虚构示例）这是 vfadmin 项目的 spec + 它自己的 MOD（vfadmin-MOD.md 使用 `AR-VFADM-XX.YYY.ZZZ` 前缀 + 角色 `平台管理员` + 模块号语义 01=租户/02=策略）。",
+      "expected_output": "**v2 关键回归点**：AR 前缀必须是 `AR-VFADM-`（不能默认 fallback 到 `AR-SATP-` 污染 vfadmin 输出）；角色用 `平台管理员`（不能默认 `超级管理员`）；模块号沿用 vfadmin MOD 的 01/02 语义。CRUD 拆 3、XSS 最小子集、edit-empty floor 等通用 floor 仍然适用（来自 skill v2 §3.2），但任何 KDevSec 业务断言（4 要素操作日志、del_flag=1 等）**不**注入到 vfadmin 输出，除非 vfadmin-MOD.md 自己声明了同款断言。这一项是 v2 跨项目可复用性的核心验证。",
+      "files": []
+    }
+  ]
+}

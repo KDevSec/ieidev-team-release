@@ -22,11 +22,11 @@ def _load_table(path):
     return table, data.get("gate_specs", {})
 
 
-def _print_state(state, workspace):
+def _print_state(state, workspace, extra=None):
     """Print enriched state JSON for orchestrator consumption (flat view)."""
     from ieidev_core import events
     slug = state.get("slug")
-    print(json.dumps({
+    data = {
         "slug": slug,
         "flow": state.get("flow"),
         "display_name": state.get("display_name"),
@@ -42,12 +42,22 @@ def _print_state(state, workspace):
         "stories": state.get("stories", []),
         "runs": state.get("runs", []),
         "events_len": len(events.read_events(workspace, slug)),
-    }, ensure_ascii=False, indent=2))
+    }
+    if extra:
+        data.update(extra)
+    print(json.dumps(data, ensure_ascii=False, indent=2))
 
 
 def cmd_show(args):
-    _print_state(flow_state.read_state(args.workspace, args.flow, args.slug),
-                 args.workspace)
+    state = flow_state.read_state(args.workspace, args.flow, args.slug)
+    actual_flow = state.get("flow")  # None if no active run
+    extra = None
+    if actual_flow is not None and actual_flow != args.flow:
+        extra = {"_note": (
+            f"flow 不符：请求 '{args.flow}' 但实际活跃 flow 为 '{actual_flow}'；"
+            "已按 slug 取真实状态（show 忽略 flow 参数，按 slug 定位）"
+        )}
+    _print_state(state, args.workspace, extra=extra)
     return 0
 
 
@@ -187,7 +197,15 @@ def cmd_handoff_path(args):
 
 
 def cmd_handoff_write(args):
-    gi = json.loads(args.gate_input) if args.gate_input else None
+    gi = None
+    if args.gate_input:
+        try:
+            gi = json.loads(args.gate_input)
+        except json.JSONDecodeError as exc:
+            snippet = args.gate_input[:60]
+            raise ValueError(
+                f"--gate-input 须合法 JSON，解析失败（{exc}）；实收：{snippet!r}"
+            ) from exc
     p = flow_state.write_handoff_status(
         args.workspace, args.slug, args.employee, args.node, args.status,
         args.summary, artifacts=args.artifact, gate_input=gi, reason=args.reason)

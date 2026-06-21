@@ -29,11 +29,12 @@ def resolve_plugin_root() -> Path:
 def build_statusline_command(plugin_root: Path) -> str:
     """构造写入 statusLine.command 的字符串。
 
-    形如：python3 "/abs/ieidev_hud/__main__.py" statusline --workspace ${workspaceFolder}
-    脚本路径带双引号（防路径含空格）；${workspaceFolder} 是 CC 模板变量，照原样写入。
+    形如：python3 "/abs/ieidev_hud/__main__.py" statusline
+    不加 --workspace：CC 不展开 ${workspaceFolder}，展开后为空串会导致 argparse 报错。
+    workspace 通过 stdin JSON 的 cwd 字段（CC 注入）或进程 cwd 解析，见 cli.py。
     """
     main_py = plugin_root / "ieidev_hud" / "__main__.py"
-    return f'python3 "{main_py}" statusline --workspace ${{workspaceFolder}}'
+    return f'python3 "{main_py}" statusline'
 
 
 def is_kdev_statusline(statusline) -> bool:
