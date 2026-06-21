@@ -1,0 +1,42 @@
+{
+  "name": "ieidev-team",
+  "version": "0.1.0",
+  "description": "ieidev 数字员工集群一行装机（npx ieidev-team）：注册 marketplace + 装插件 + 接状态栏，全程幂等。插件本体由 marketplace 从 GitHub 拉，本包只发布装机件。",
+  "bin": {
+    "ieidev-team": "bin/cli.js"
+  },
+  "files": [
+    "bin/cli.js",
+    "install.sh",
+    "pyieidev/ieidev_hud/__init__.py",
+    "pyieidev/ieidev_hud/installer.py",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-code-plugin",
+    "ieidev",
+    "digital-employee",
+    "agent",
+    "orchestration",
+    "npx-installer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KDevSec/ieidev-team-release.git"
+  },
+  "homepage": "https://github.com/KDevSec/ieidev-team-release#readme",
+  "bugs": {
+    "url": "https://github.com/KDevSec/ieidev-team-release/issues"
+  },
+  "author": "ly",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
