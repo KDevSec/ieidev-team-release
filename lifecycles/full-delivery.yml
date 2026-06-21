@@ -1,0 +1,9 @@
+template_id: full-delivery
+display: 全交付（需求→开发→测试）
+when: "全新功能 + 需可交付落地 + 需测试验收；无现成 SR/设计产物"
+stages:
+  - {emp: req-architect, flow: design-flow,      handoff_from: null}
+  - {emp: dev-engineer,  flow: coding-flow,      handoff_from: req-architect@n8-merge}
+  - {emp: test-engineer, flow: test-design-flow, handoff_from: req-architect@n8-merge}
+reviews_default: reviewer-expert      # 各 flow 评审默认走专家（node-table gate_specs 已是该值，确认屏据 gate_specs 真实渲染）
+human_gates_default: [after-req]       # 默认一道停人闸：需求交付后人确认再进开发

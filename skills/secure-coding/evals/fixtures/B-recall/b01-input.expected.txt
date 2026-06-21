@@ -1,0 +1,4 @@
+# b01-input.py — 预埋漏洞清单（3.1 输入验证）
+
+1. 3.1.5 SQL 注入 — line 23 — get_user 函数 cursor.execute f-string 拼接 uid
+2. 3.1.1 命令注入 — line 32 — delete_file 函数 os.system + f-string 拼接 filename

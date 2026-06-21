@@ -1,0 +1,36 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Widget Service", "version": "1.0.0" },
+  "paths": {
+    "/api/widget/list": {
+      "get": {
+        "summary": "List widgets (optional name filter)",
+        "parameters": [
+          { "name": "name", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/widget": {
+      "post": {
+        "summary": "Create a widget",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["widgetName"],
+                "properties": {
+                  "widgetName": { "type": "string", "maxLength": 64 },
+                  "parentId": { "type": "integer", "nullable": true },
+                  "description": { "type": "string", "maxLength": 1000 }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+# ieidev-team 花名册：canonical id → 中文 display + flow-skill 方法论 + 编排 node-table + 运行时模型
+# 守 spec §0.5 命名规范。运行时模型阶段1 暂统一 opus，可改二档。
+# callee 员工（kind: callee，如 reviewer）= 被 caller 编排发函调用、不 own flow（不复用 flow-driver、
+#   不持有 flow-state）、只产评分表回函；跨员工发函硬规（who→whom/结构化/建议非拦截）见 flow-driver SKILL §2.4quater。
+employees:
+  dev-engineer:
+    display: 开发工程师
+    kind: flow-owner
+    flow_skill: null                 # 方法论母体已外置/解耦：coding-flow 是独立标准件（spec §3.4 集群对其零运行时依赖），编排实体化在 node_table
+    node_table: orchestration/dev-engineer.node-table.yml
+    runtime_model: opus
+    agents:
+      - dev-engineer-orchestrator
+      - dev-engineer-env
+      - dev-engineer-plan
+      - dev-engineer-frontend
+      - dev-engineer-e2e
+      - dev-engineer-deploy
+      - dev-engineer-sec
+  req-architect:
+    display: 需求架构师
+    kind: flow-owner
+    flow_skill: null                 # 方法论已外置到 authoring skill（sr-/ar-/detailed-design-/constitution-authoring + frontend-design），design-flow 解耦为独立标准件（spec §3.4，同 dev-engineer 范式）；编排实体化在 node_table
+    node_table: orchestration/req-architect.node-table.yml
+    runtime_model: opus
+    agents:
+      - req-architect-orchestrator
+      - req-architect-clarify
+      - req-architect-spec
+      - req-architect-decompose
+      - req-architect-prototype
+      - req-architect-design
+  test-engineer:
+    display: 测试工程师
+    kind: flow-owner
+    flow_skill: null                 # 方法论分散在 ieidev-team:test-points/cases/ui-autotest 能力 skill，无统一 flow-skill
+    node_tables:                     # 多 flow flow-owner：2 个 relay flow（同 slug 接力 baton）。dev/req 仍用 node_table 单数
+      test-design-flow: orchestration/test-engineer.design.node-table.yml
+      test-exec-flow:   orchestration/test-engineer.exec.node-table.yml
+    default_flow: test-design-flow   # driver 默认入口（黑盒设计，无 env、永远可跑）
+    runtime_model: opus
+    agents:
+      - test-engineer-orchestrator
+      - test-engineer-points
+      - test-engineer-cases
+      - test-engineer-ui
+      - test-engineer-api
+  reviewer:
+    display: 评审专家
+    kind: callee                              # 被 caller R3 review gate 发函调用，无自有 flow
+    flow_skill: null                          # callee 无方法论 flow-skill
+    dispatch_table: orchestration/reviewer.dispatch-table.yml   # 取代 node_table（互斥）
+    standards_dir: standards/reviewer/
+    runtime_model: opus
+    agents:
+      - reviewer-orchestrator
+      - reviewer-sr
+      - reviewer-story
+      - reviewer-prototype
+      - reviewer-design
+      - reviewer-code
+      - reviewer-security
+      - reviewer-test-design
+      - reviewer-test-coverage
+  cqo:
+    display: CQO监督员
+    kind: callee                              # 元监督，类比 reviewer：被 goal checkpoint 发函，无自有 flow（spec D-1）
+    flow_skill: null                          # callee 无方法论 flow-skill
+    # callee 但无 dispatch_table（不 fan-out 能力 agent——CQO 是叶子，自己直接审计，不下派；spec §8 防套娃）。
+    # 单 agent cqo-orchestrator 直接跑 `ieidev_core cqo-audit` 机械层 + LLM 语义研判，不存在要路由的子能力。
+    runtime_model: opus
+    agents:
+      - cqo-orchestrator                      # 唯一 agent：callee 叶子，直接审计 + 回函，不 dispatch 任何 subagent
+    # 双信号阈值（spec §11.1 D-5 / 架构补遗 §8.3 cqo_supervision 骨架）。MVP 只上 circuit-breaker；
+    # plateau 不进 MVP（依赖未落地的 FF-4 数字分，spec D-4）。cqo-orchestrator / cqo-audit CLI 读此默认。
+    cqo_supervision:
+      # 监听层落地状态（spec §4.2 三层机制）：
+      #   L-a = 逐事件 hook 廉价规则全检（PostToolUse matcher=Bash，hooks/cqo-event-audit.py，
+      #         零 LLM 纯 python；命中落 .ieidev/memory/staff/cqo/WARN-*.md，goal 棒间消费 §4.6）。
+      #   L-b = checkpoint LLM 深审（goal 发函 cqo-orchestrator，goal SKILL §4.5）。
+      layers:
+        la_event_hook:
+          enabled: true                         # ✅ 已建：hooks/cqo-event-audit.py + ieidev_core/cqo_la.py（TDD）
+          mechanism: PostToolUse(matcher=Bash)  # ieidev_core 写事件调用后触发，纯 python 规则
+          rules:                                # MVP 3 条确定性规则（可扩展，spec §4.4 L-a 行）
+            - record-gate-by-mismatch           # review gate verdict by 非评审专家
+            - advance-past-impl-no-tests         # advance 过 TDD 实现节点但无测试文件
+            - gate-pass-artifact-missing         # gate PASS 但对应 node handoff 产物文件不存在
+          signal_dir: .ieidev/memory/staff/cqo/ # WARN-<时间戳>.md（goal 棒间读 → 据信号决定 → 消费后删）
+        lb_checkpoint_audit:
+          enabled: true                         # ✅ 已建：goal §4.5 发函 cqo-orchestrator
+          mechanism: dispatch(cqo-orchestrator) # checkpoint LLM 深审
+      signals:
+        circuit_breaker:
+          threshold: 3                        # 同 gate 跨 gate/跨 flow 累计 FAIL≥3 触顶
+          action: escalate_to_ceo             # 升 goal/CEO（建议非拦截，CQO 不直接拦流）
+        plateau:
+          enabled: false                      # MVP 不上（依赖 FF-4 数字分 score 序列，spec D-4）
+          threshold: 0.05                      # 骨架默认值（进步<5%），FF-4 落地后启用
+          window: 3
+          action: prompt_user_for_unblock

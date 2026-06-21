@@ -1,0 +1,39 @@
+# 需求架构师 req-architect 的 design-flow SOP node-table（L0 默认编排）。
+# 复用通用 flow-driver skill + ieidev-core 引擎（零改）。员工 canonical id=req-architect。
+# kind=action|gate|terminal；gate 节点带 gate id 指向 gate_specs。
+#
+# reviewer: 评审专家已建（spec 2026-06-12 v0.2 / Q-016）：3 闸 reviewer-expert，编排到 gate
+#   发函 `ieidev-team:reviewer-orchestrator`（B 轨 handoff，见 gate-decision-logic.md req 段）；
+#   L1 flow-config 可回退 self（per-gate reviewer 的 engine 级 merge 待后续 plan，本期 L0 字段生效）。
+#   回退 self 时按 design-flow review-gate-prompt.md 判据自评，config.review_mode 控 ai/both/human 三档。
+#
+# 3 评审 gate 复刻 ieidev-design-flow 的 3 闸门（保 SOP 行为不破，evals 兜）：
+#   g-sr-review       = design-flow Gate1（SR 需求评审）
+#   g-ar-proto-review = design-flow Gate2（AR+原型共评；Stage2+Stage3 共用一闸）
+#   g-design-review   = design-flow Gate3（方案/设计闸）
+# 评审 FAIL 有界回流：gate_iters 达 max_retries(3) → status=blocked 升人（复刻 design-flow
+#   「3 次仍 FAIL → abort 升人」；引擎用 blocked 表达 escalate，不强过、不冒充第三方）。
+# 产物：运行时落 .ieidev/features/<slug>/handoffs/req-architect/；记忆 scope .ieidev/memory/staff/req-architect/。
+# 跨员工交付（P-B）：n8-merge 收尾落 handoff（handoff-write --employee req-architect --node n8-merge），
+#   下游 dev-engineer coding-flow 同 slug handoff-read 当 spec/plan 输入。契约见 flow-driver SKILL §2.4ter。
+flow: design-flow
+delivery_node: n8-merge      # 交付节点（flow-driver §2.4ter handoff-write 落点）；lint 解析 handoff 目标据此
+max_retries: 3
+terminal_fail: n-fail
+nodes:
+  - {id: n0-clarify,         name: 需求澄清 IR,                kind: action,   next: [n1-spec]}
+  - {id: n1-spec,            name: 需求计划 SR,                kind: action,   next: [n2-sr-review]}
+  - {id: n2-sr-review,       name: SR 需求评审,                kind: gate,     gate: g-sr-review, next: [n3-decompose, n1-spec]}
+  - {id: n3-decompose,       name: 需求拆解 AR(迭代+用户故事),  kind: action,   next: [n4-prototype]}
+  - {id: n4-prototype,       name: 高保真原型,                 kind: action,   next: [n5-ar-proto-review]}
+  - {id: n5-ar-proto-review, name: AR+原型 评审,               kind: gate,     gate: g-ar-proto-review, next: [n6-design, n4-prototype]}
+  - {id: n6-design,          name: 方案设计,                   kind: action,   next: [n7-design-review]}
+  - {id: n7-design-review,   name: 方案评审(设计闸),            kind: gate,     gate: g-design-review, next: [n8-merge, n6-design]}
+  - {id: n8-merge,           name: 产物聚合+合并交付,           kind: action,   next: [n9-done]}
+  - {id: n9-done,            name: 交付清点+阶段聚合报告,        kind: terminal, next: []}
+  - {id: n-fail,             name: reflow 溢出终止(R2 有界回流 sink；R3 评审 gate escalate 走 status=blocked 留原地不到此), kind: terminal, next: []}
+
+gate_specs:
+  g-sr-review:       {kind: review, on_pass: n3-decompose, on_reflow: n1-spec,      reviewer: reviewer-expert}
+  g-ar-proto-review: {kind: review, on_pass: n6-design,    on_reflow: n4-prototype, reviewer: reviewer-expert}
+  g-design-review:   {kind: review, on_pass: n8-merge,     on_reflow: n6-design,    reviewer: reviewer-expert}

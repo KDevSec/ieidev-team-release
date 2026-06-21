@@ -1,0 +1,10 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ieidev",
+  "description": "ieidev 数字员工集群 marketplace",
+  "owner": { "name": "KDevSec" },
+  "allowCrossMarketplaceDependenciesOn": ["understand-anything"],
+  "plugins": [
+    { "name": "ieidev-team", "description": "ieidev 数字员工集群（自包含单插件）", "category": "development", "source": "./" }
+  ]
+}

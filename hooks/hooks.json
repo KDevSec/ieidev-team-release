@@ -1,0 +1,97 @@
+{
+  "description": "ieidev-team: 七层防线 hook 系统 —— SessionStart 注入 + UserPromptSubmit 智能召回（主文件 + 归档/ 子目录两路扫描）+ Stop 软提醒/归档提醒/Strict 阻塞 + PostToolUse 里程碑联动 + commit-tracker + CQO L-a 逐事件抽查（matcher=Bash，ieidev_core 写事件调用后跑纯 python 规则 → 命中落 staff/cqo/WARN-*）+ PreCompact 压缩前写盘 + SessionEnd 兜底警告",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" ieidev-sync-bootstrap.py",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" session-start-brief.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" user-prompt-trigger.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" stop-check.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" post-write-check.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" commit-tracker.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" cqo-event-audit.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" pre-compact-check.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" session-end-check.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-python-hook.cmd\" ieidev-sync-push.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

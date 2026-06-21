@@ -1,0 +1,14 @@
+# 评审专家 dispatch 路由（callee；被 caller R3 review gate 发函调用，不跑自有 flow）
+# 见 spec §3.2。cap→agent→standards→默认阈值→评对象→caller_gate（员工:gate 形）。
+capabilities:
+  - {cap: sr,        agent: reviewer-sr,        standards: standards/reviewer/SR需求评审.md,   threshold: 80, target: sr.md,             caller_gate: [req-architect:g-sr-review]}
+  - {cap: story,     agent: reviewer-story,     standards: standards/reviewer/用户故事评审.md, threshold: 80, target: 用户故事列表,         caller_gate: [req-architect:g-ar-proto-review]}
+  - {cap: prototype, agent: reviewer-prototype, standards: standards/reviewer/原型评审.md,     threshold: 75, target: prototype/,          caller_gate: [req-architect:g-ar-proto-review]}
+  - {cap: design,    agent: reviewer-design,    standards: standards/reviewer/方案架构评审.md, threshold: 85, target: [design.md, plan.md], caller_gate: [req-architect:g-design-review, dev-engineer:g-plan-review]}
+  - {cap: code,      agent: reviewer-code,      standards: standards/reviewer/代码质量评审.md, threshold: 85, target: [src/, tests/, diff], caller_gate: [dev-engineer:g-code-review]}
+  - {cap: security,      agent: reviewer-security,      standards: standards/reviewer/安全评审.md,     threshold: 85, target: [security.md, diff],             caller_gate: [dev-engineer:g-sec-review]}
+  - {cap: test-design,   agent: reviewer-test-design,   standards: standards/reviewer/测试设计评审.md, threshold: 85, target: [test-points.md, test-cases.md], caller_gate: [test-engineer:g-test-design-review]}
+  - {cap: test-coverage, agent: reviewer-test-coverage, standards: standards/reviewer/测试覆盖评审.md, threshold: 80, target: [ui-results, coverage-report],    caller_gate: [test-engineer:g-test-coverage-review]}
+# deferred（随 caller 员工建成补，本期不建 agent）:
+#   need-direction / iteration-split  ← req 须先加 R1.5/R2.5 gate
+# 扩展 6（默认关，留接口）: deploy / perf / docs / compliance / observability / a11y

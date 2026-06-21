@@ -1,0 +1,9 @@
+# b08-environment.py — 预埋漏洞清单（3.8 环境）
+
+1. 3.8.2 调试模式开启 — line 14 — DEBUG = True 模块级变量
+2. 3.8.2 调试模式开启 — line 18 — app.config["DEBUG"] = True
+3. 3.8.2 调试模式开启 — line 41 — app.run(debug=True) 双保险
+4. 3.8.2 ALLOWED_HOSTS 全开 — line 13 — ALLOWED_HOSTS = ["*"] (Django 风格配置项)
+5. 3.2.3 硬编码密钥 — line 15 — SECRET_KEY 硬编码字符串，应从环境变量 / secret 管理服务读取
+6. 3.8.3 旧依赖 / 过期版本 — sidecar b08-environment.requirements.txt 中 Django==1.11 / Python 2.7 等已 EOL
+7. 3.6.1 异常向用户暴露 — line 36 — handle_500 把 str(e) + type 名暴露给前端

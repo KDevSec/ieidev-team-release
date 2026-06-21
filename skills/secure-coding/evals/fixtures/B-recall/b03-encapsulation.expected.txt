@@ -1,0 +1,6 @@
+# b03-encapsulation.py — 预埋漏洞清单（3.3 封装）
+
+1. 3.3.5 CORS 全开 — line 11 — Access-Control-Allow-Origin: * 配合 line 12 Allow-Credentials: true 等于把任何来源都视为可信
+2. 3.3.4 缺 Content-Security-Policy — 整个 after_request 未设置 CSP
+3. 3.3.1 缺 X-Frame-Options / X-Content-Type-Options / X-XSS-Protection — 整个 after_request 未设置任一安全响应头
+4. 3.3.2/3.1.6 反射型 XSS — line 35 — embed 路由用 f-string 把 dashboard_id 拼进 HTML 返回，未做 HTML 转义

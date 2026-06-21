@@ -1,0 +1,16 @@
+$ pytest testcase/widget/ -v -ra
+
+testcase/widget/test_widget_query.py::TestWidgetQuery::test_g3_scope_override   SKIPPED
+testcase/widget/test_widget_create.py::TestWidgetCreate::test_g1_datascope_vis  SKIPPED
+testcase/widget/test_widget_create.py::TestWidgetCreate::test_g5_scoped_create  SKIPPED
+
+=========================== short test summary info ============================
+SKIPPED [1] 受限账号 pladmin_scoped 未在环境预置
+SKIPPED [1] 数据范围覆盖/不覆盖账号未在环境预置（pladmin_covering / pladmin_noncovering）
+SKIPPED [1] 受限账号 user_scoped_create 未在环境预置
+
+# 这 3 条用例里调用的账号：
+#   test_g3_scope_override   -> restricted_login("pladmin_scoped")
+#   test_g1_datascope_vis    -> restricted_login("pladmin_covering") / restricted_login("pladmin_noncovering")
+#   test_g5_scoped_create    -> restricted_login("user_scoped_create")
+# 现象：每次跑全量这 3 条都是 SKIP，pass 率看着很高。

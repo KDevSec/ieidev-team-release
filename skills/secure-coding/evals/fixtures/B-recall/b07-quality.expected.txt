@@ -1,0 +1,6 @@
+# b07-quality.py — 预埋漏洞清单（3.7 代码质量）
+
+1. 3.7.1 硬编码路径分隔符 — line 14 — LOG_BASE 用 Windows 风格 "C:\\Users\\app\\data\\logs"，部署到 Linux/macOS 必失败
+2. 3.7.1 硬编码路径分隔符 — line 18 — parse_path 用 p.split("\\")
+3. 3.7.1 硬编码路径分隔符 — line 22 — join_log_path 字符串拼接 "\\"，应使用 os.path.join 或 pathlib.Path
+4. 3.7.1 硬编码路径分隔符 — line 41 — cwd_log 用 ".\\" 拼接相对路径
