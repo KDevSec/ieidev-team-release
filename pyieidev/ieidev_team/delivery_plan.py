@@ -72,3 +72,14 @@ def read(workspace, slug):
         return plan
     except (yaml.YAMLError, OSError):
         return None
+
+
+def needs_clarification(plan, threshold: float = 0.6) -> bool:
+    """置信度门控：plan confidence < 阈值 → 需先和人澄清需求（#7）。
+    缺 confidence → 不强制（False）；非数值 → 保守要求澄清（True）。"""
+    if "confidence" not in (plan or {}):
+        return False
+    try:
+        return float(plan["confidence"]) < threshold
+    except (TypeError, ValueError):
+        return True

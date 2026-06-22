@@ -282,6 +282,22 @@ def cmd_list_flows(args):
     return 0
 
 
+def cmd_pause_gate(args):
+    from ieidev_core import gate_pause
+    gate_pause.write_pause(args.workspace, args.slug, args.gate, reason=args.reason or "")
+    print(json.dumps({"paused": args.gate}, ensure_ascii=False))
+    return 0
+
+
+def cmd_confirm_gate(args):
+    from ieidev_core import gate_pause
+    gate_pause.clear_pause(args.workspace, args.slug, args.gate)
+    print(json.dumps({"confirmed": args.gate,
+                      "still_paused": gate_pause.active_pauses(args.workspace, args.slug)},
+                     ensure_ascii=False))
+    return 0
+
+
 def _common(sub, name):
     """A subparser with the shared --workspace + flow/slug positionals."""
     sp = sub.add_parser(name)
@@ -433,6 +449,19 @@ def build_parser():
     pmg.add_argument("--dry-run", action="store_true")
     pmg.add_argument("--remove-old", action="store_true")
     pmg.set_defaults(func=cmd_migrate)
+
+    ppg = sub.add_parser("pause-gate")
+    ppg.add_argument("slug")
+    ppg.add_argument("gate")
+    ppg.add_argument("--workspace", default=".", help="workspace root")
+    ppg.add_argument("--reason", default=None)
+    ppg.set_defaults(func=cmd_pause_gate)
+
+    pcg = sub.add_parser("confirm-gate")
+    pcg.add_argument("slug")
+    pcg.add_argument("gate")
+    pcg.add_argument("--workspace", default=".", help="workspace root")
+    pcg.set_defaults(func=cmd_confirm_gate)
 
     return p
 

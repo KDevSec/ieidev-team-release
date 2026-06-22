@@ -128,6 +128,46 @@ def _dispatch_views(events):
 # Task 3: derivation layer — build_feature_view
 # ---------------------------------------------------------------------------
 
+_EMP_DISPLAY_HUD = {
+    "req-architect": "需求架构师",
+    "dev-engineer": "开发工程师",
+    "test-engineer": "测试工程师",
+}
+
+
+def _roadmap_stage_status_map(dispatches):
+    """dispatch view 列表 → {stage_index: "done"|"active"}；无 → key 缺失。"""
+    result = {}
+    for dv in dispatches:
+        si = dv.get("stage_index")
+        if si is None:
+            continue
+        if dv.get("status") == "done":
+            result[si] = "done"
+        elif dv.get("running") and result.get(si) != "done":
+            result[si] = "active"
+    return result
+
+
+def _roadmap_stages(plan, dispatches):
+    """delivery-plan on 段 + dispatch 状态 → stages list。"""
+    if not plan:
+        return []
+    on_stages = [s for s in (plan.get("stages") or []) if s.get("on")]
+    status_map = _roadmap_stage_status_map(dispatches)
+    return [
+        {
+            "emp": s.get("emp") or "",
+            "flow": s.get("flow") or "",
+            "display_name": _EMP_DISPLAY_HUD.get(s.get("emp") or "", s.get("emp") or ""),
+            "on": True,
+            "stage_index": i,
+            "status": status_map.get(i, "pending"),
+        }
+        for i, s in enumerate(on_stages, 1)
+    ]
+
+
 def _completion(stories):
     total = len(stories)
     done = sum(1 for s in stories if s.get("status") == "done")
@@ -208,6 +248,24 @@ def build_feature_view(workspace, slug):
         {"emp": dv["emp"], "busy": dv["running"], "dispatch_id": dv["dispatch_id"]}
         for dv in dispatches
     ]
+    # ── Roadmap（计划说明书结构体）──
+    roadmap = {
+        "stages": _roadmap_stages(plan, dispatches),
+        "story_summary": {
+            "done": done,
+            "total": total,
+            "pct": pct,
+            "items": [
+                {"id": s.get("id"), "title": s.get("title"),
+                 "status": s.get("status", "pending")}
+                for s in stories
+            ],
+        },
+        "worktree": {
+            "intent": (plan.get("worktree_intent") if plan else None),
+            "concrete": None,
+        },
+    }
     return {
         "slug": doc.get("slug", slug),
         "display_name": doc.get("display_name") or slug,
@@ -223,6 +281,7 @@ def build_feature_view(workspace, slug):
         "delivery": delivery,
         "dispatches": dispatches,
         "employee_activity": employee_activity,
+        "roadmap": roadmap,          # ← 新增
     }
 
 

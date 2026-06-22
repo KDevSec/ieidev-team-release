@@ -22,6 +22,14 @@ from ieidev_core import events as _events
 
 VALID_REVIEW_MODES = {"ai", "both", "human"}
 
+_FLOW_EMPLOYEE = {
+    "design": "req-architect",
+    "coding": "dev-engineer",
+    "test-design": "test-engineer",
+    "test-exec": "test-engineer",
+}
+
+
 class FlowStateError(Exception):
     """Raised when flow-state.json is missing, corrupt, or in an invalid state."""
 
@@ -76,6 +84,19 @@ def init_state(workspace, flow, slug, *, display_name,
         "updated_at": now,
     }
     _write_doc(workspace, slug, doc)
+    # —— #9：立项即登记到本机 registry（幂等、best-effort，失败不影响立项）——
+    try:
+        from ieidev_team import registry as _registry
+        _registry.register(
+            workspace, slug,
+            display_name=display_name,
+            employee=_FLOW_EMPLOYEE.get(flow, flow),
+            owner=_registry.owner_id(),
+            status="active",
+            ts=now,
+        )
+    except Exception:
+        pass
     return read_state(workspace, slug=slug)
 
 

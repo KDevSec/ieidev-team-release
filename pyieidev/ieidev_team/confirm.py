@@ -8,6 +8,51 @@ _DISPLAY = {
 }
 
 
+_STAGE_ROUTE_DISPLAY = {
+    "req-architect": "需求架构师·需求设计",
+    "dev-engineer":  "开发工程师·开发实现",
+    "test-engineer": "测试工程师·测试验收",
+}
+
+
+def render_plan_skeleton(plan) -> str:
+    """渲染计划说明书骨架（confirm 阶段）：阶段路线 + worktree 意向 + story 粗估。
+
+    confirm 时 story 数/worktree 落点可能尚未确定，展示意向/粗估并标注待填实。
+    """
+    L = []
+    L.append("── 计划说明书（骨架） ──")
+
+    # 阶段路线
+    on_stages = [s for s in plan.get("stages", []) if s.get("on")]
+    if on_stages:
+        route = " → ".join(
+            _STAGE_ROUTE_DISPLAY.get(s.get("emp", ""), s.get("emp", ""))
+            for s in on_stages
+        )
+        L.append(f"阶段路线：{route}")
+    else:
+        L.append("阶段路线：（无启用段）")
+
+    # worktree 意向
+    wt = plan.get("worktree_intent")
+    if wt == "worktree":
+        L.append("worktree：将在隔离 worktree 执行（dev 段落点待确认）")
+    elif wt == "inline":
+        L.append("worktree：inline 当前分支执行")
+    else:
+        L.append("worktree：待 dev 段自动判定")
+
+    # story 粗估
+    est = plan.get("story_estimate")
+    if est:
+        L.append(f"用户故事（预估）：{est}")
+    else:
+        L.append("用户故事：待 decompose 阶段填实")
+
+    return "\n".join(L)
+
+
 def review_items(emp, flow, overrides, staff=None) -> list:
     specs = roster.gate_specs(emp, flow, staff)
     ov = overrides or {}
@@ -51,6 +96,8 @@ def render_screen(plan, staff=None) -> str:
     ru = plan.get("runner_up")
     if ru:
         L.append(f"次选：{ru.get('template_id')} —— {ru.get('why_not', '')}")
+    L.append("")
+    L.append(render_plan_skeleton(plan))
     L.append("")
     low = float(plan.get("confidence", 1)) < 0.6
     if low:

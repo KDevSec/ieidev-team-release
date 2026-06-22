@@ -246,3 +246,16 @@ caller 编排到 review gate 时，`caps` 字段据此填：
 | req-architect:g-design-review | design |
 | test-engineer:g-test-design-review | test-design |
 | test-engineer:g-test-coverage-review | test-coverage |
+
+## Story 状态流转规范（set-story-status）
+
+`ieidev_core flow_state.set_story_status(workspace, slug, story_id=..., status=...)` 负责推进单个 story 的完成度。flow-driver 在以下节点调用（粗粒度，先落地、不下钻到 task 级）：
+
+| 节点 | 操作 | 说明 |
+|------|------|------|
+| `n6b-impl-subagent`（dev 段开始实现某 story 对应增量） | `status="in_progress"` | 进入开发实现时标进行中 |
+| `n9b-e2e`（e2e 过 PASS，当前增量链路验收通过） | `status="done"` | E2E 绿才算 story 真完成 |
+
+🔴 **禁止在 gate FAIL 或中间节点提前标 done**（避免 HUD 完成度虚高）。
+
+当没有明确的 story 与当前增量对应时（如增量是纯架构重构、无对应用户故事），跳过 set-story-status，不强行关联。

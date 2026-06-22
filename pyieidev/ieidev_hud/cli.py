@@ -2,7 +2,7 @@
 
 statusline：输出单行接 Claude Code statusLine（消费并忽略 stdin 的 session JSON）。
 render：读 features/ → 写 <workspace>/.ieidev/hud.html（不在 features/ 下，gitignored）。
-serve：起 stdlib http 服务，每次 GET 实时重渲 dashboard → 浏览器轮询看 live 进展（方案 A）。
+serve：起 stdlib http 服务，每次 GET 实时重渲 HUD 页（frontend client-render shell）→ 浏览器轮询看 live 进展（方案 A）。
 setup：把 statusLine 幂等合并进 settings.json（OMC installer 模式）。
 workspace 解析：--workspace > stdin JSON 的 cwd > 当前工作目录。
 """
@@ -12,7 +12,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ieidev_hud import datasource, statusline, dashboard, setup, server
+from ieidev_hud import datasource, statusline, setup, server, global_datasource, frontend
 
 
 def _consume_stdin():
@@ -70,11 +70,17 @@ def cmd_statusline(args):
 
 def cmd_render(args):
     ws = _resolve_workspace(args)
+    gen = datetime.now(timezone.utc)
+    is_global = bool(getattr(args, "global_", False))
     try:
-        model = datasource.build_hud_model(ws)
+        if is_global:
+            model = global_datasource.build_global_model(now=gen)
+        else:
+            model = global_datasource.build_workspace_model(ws, now=gen)
     except Exception:
-        model = {"features": [], "feature_count": 0, "primary": None}
-    html = dashboard.render(model, generated_at=_now_iso())
+        # HUD 铁律：观测层永不崩 / render 永不抛 —— model 构建失败降级出合法空 shell
+        model = global_datasource.empty_model("global" if is_global else "workspace", now=gen)
+    html = frontend.render_shell(model)
     out = Path(args.out) if args.out else Path(ws) / ".ieidev" / "hud.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
@@ -85,7 +91,8 @@ def cmd_render(args):
 def cmd_serve(args):
     ws = _resolve_workspace(args)
     return server.serve(ws, host=args.host, port=args.port,
-                        open_browser=args.open)
+                        open_browser=args.open,
+                        global_mode=bool(getattr(args, "global_", False)))
 
 
 def cmd_setup(args):
@@ -126,6 +133,8 @@ def build_parser():
     ps.set_defaults(func=cmd_statusline)
     pr = sub.add_parser("render", parents=[common], help="通道② 生成 hud.html")
     pr.add_argument("--out", help="输出路径，缺省 <workspace>/.ieidev/hud.html")
+    pr.add_argument("--global", dest="global_", action="store_true",
+                    help="全局 HUD：读 registry 聚合本机所有项目")
     pr.set_defaults(func=cmd_render)
     pserve = sub.add_parser("serve", parents=[common],
                             help="通道③ 起 web 服务实时看进展（方案 A 轮询）")
@@ -135,6 +144,8 @@ def build_parser():
                         help="绑定地址（默认 127.0.0.1，只本机；慎改对外）")
     pserve.add_argument("--open", action="store_true",
                         help="启动后自动用默认浏览器打开")
+    pserve.add_argument("--global", dest="global_", action="store_true",
+                        help="全局实时台：读 registry 聚合本机所有项目（/model.json scope=global）")
     pserve.set_defaults(func=cmd_serve)
     psetup = sub.add_parser("setup", parents=[common], help="把 statusLine 接进 settings.json")
     scope_group = psetup.add_mutually_exclusive_group()
