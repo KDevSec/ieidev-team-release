@@ -1,6 +1,6 @@
 > **📦 ieidev-team 发布 / 分发仓（public release repo）**
 > 本仓库**只放发布说明（landing）**；插件以**自包含 npm 装机包**（`.tgz`，包内自带完整插件本体）随各版 **Releases** 分发，源码在私有仓维护。
-> ✅ 装机（Windows / Linux / macOS 通用）：到 [Releases](https://github.com/KDevSec/ieidev-team-release/releases/latest) 下载 `.tgz` → `npm i -g ./ieidev-team-0.2.0.tgz && ieidev-team`（不碰 npm registry / git 源仓，`npx ieidev-team` 不可用）。
+> ✅ 装机（Windows / Linux / macOS 通用）：到 [Releases](https://github.com/KDevSec/ieidev-team-release/releases/latest) 下载 `.tgz` → `npm i -g ./ieidev-team-0.3.0.tgz && ieidev-team`（不碰 npm registry / git 源仓，`npx ieidev-team` 不可用）。
 > 各版本制品见 Releases。
 
 # ieidev-team
@@ -11,7 +11,7 @@ ieidev 数字员工集群——自包含单插件（编排引擎 + 记忆底座 
 
 ## 安装
 
-前置：[Claude Code](https://docs.claude.com/claude-code) CLI（`claude`）+ `python3`（编排引擎与状态栏需要）。可选：`understand-anything` marketplace（`codegraph-*` 代码图 skill 的后端，缺失仅该能力降级）、Playwright MCP server（`qa` / `ui-autotest` 黑盒 UI 测试需要，缺失则这两类测试 env-gated 跳过）。
+前置：[Claude Code](https://docs.claude.com/claude-code) CLI（`claude`）+ `python3`（编排引擎与状态栏需要）。可选：`superpowers` marketplace（**推荐**：方法论 skill 来源——`writing-plans` / `finishing-a-development-branch` / `brainstorming` / `verification-before-completion` / `test-driven-development`（开发工程师代码路径的红绿 TDD 驱动器），缺失则这些能力退化为主控手做，不阻断）、`understand-anything` marketplace（`codegraph-*` 代码图 skill 的后端，缺失仅该能力降级）、Playwright MCP server（`qa` / `ui-autotest` 黑盒 UI 测试需要，缺失则这两类测试 env-gated 跳过）。
 
 > 📦 本插件**不发布到 npm registry**、也**不依赖 git 源码仓**——只通过 GitHub Release 分发一个**自包含 npm 装机包**（`.tgz`，包内自带完整插件本体）。**装机全程本地，Windows / Linux / macOS 通用。**
 
