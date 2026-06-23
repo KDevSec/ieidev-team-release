@@ -1,5 +1,0 @@
-# b05-time-state.py — 预埋漏洞清单（3.5 时间与状态）
-
-1. 3.5.1 不安全临时文件 — line 22 — tempfile.mktemp() 存在 race condition；应使用 tempfile.mkstemp() 或 tempfile.NamedTemporaryFile()
-2. 3.5.2 共享可变状态无锁 — line 13/30/40 — 全局 dict JOBS 同时被 HTTP handler（多线程 / 多 worker）和 background_worker 线程读写，无 threading.Lock
-3. 3.5.2 共享可变状态无锁 — line 14/27 — COUNTER 全局变量被并发 read-modify-write，操作非原子

@@ -1,5 +1,0 @@
-# b04-api-misuse.py — 预埋漏洞清单（3.4 API 滥用）
-
-1. 3.4.1 路径遍历 / 任意文件读 — line 16 — serve_file 直接 send_file(用户输入 path) 无任何路径校验
-2. 3.4.2 文件权限过宽 — line 25 — upload 函数 os.chmod(target, 0o777) 给上传文件世界可读写可执行
-3. 3.4.1 路径拼接未规范化 — line 30-32 — file_info 用 os.path.join + 用户输入 name，name 含 ../ 可越出 UPLOAD_DIR
