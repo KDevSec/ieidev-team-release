@@ -1,6 +1,6 @@
 > **📦 ieidev-team 发布 / 分发仓（public release repo）**
 > 本仓库**只放发布说明（landing）**；插件以**自包含 npm 装机包**（`.tgz`，包内自带完整插件本体）随各版 **Releases** 分发，源码在私有仓维护。
-> ✅ 装机（Windows / Linux / macOS 通用）：到 [Releases](https://github.com/KDevSec/ieidev-team-release/releases/latest) 下载 `.tgz` → `npm i -g ./ieidev-team-0.5.2.tgz && ieidev-team`（不碰 npm registry / git 源仓，`npx ieidev-team` 不可用）。
+> ✅ 装机（Windows / Linux / macOS 通用）：到 [Releases](https://github.com/KDevSec/ieidev-team-release/releases/latest) 下载 `.tgz` → `npm i -g ./ieidev-team-0.5.3.tgz && ieidev-team`（不碰 npm registry / git 源仓，`npx ieidev-team` 不可用）。
 > 各版本制品见 Releases。
 
 # ieidev-team
@@ -23,25 +23,25 @@ ieidev 数字员工集群——自包含单插件（编排引擎 + 记忆底座 
 # 跨平台（需 gh，自动取最新版）
 gh release download --repo KDevSec/ieidev-team-release --pattern '*.tgz'
 # Linux / macOS（指定版本直链）
-curl -fL -O https://github.com/KDevSec/ieidev-team-release/releases/download/v0.5.2/ieidev-team-0.5.2.tgz
+curl -fL -O https://github.com/KDevSec/ieidev-team-release/releases/download/v0.5.3/ieidev-team-0.5.3.tgz
 ```
 
 ```powershell
 # Windows PowerShell
-iwr https://github.com/KDevSec/ieidev-team-release/releases/download/v0.5.2/ieidev-team-0.5.2.tgz -OutFile ieidev-team-0.5.2.tgz
+iwr https://github.com/KDevSec/ieidev-team-release/releases/download/v0.5.3/ieidev-team-0.5.3.tgz -OutFile ieidev-team-0.5.3.tgz
 ```
 
 ### 2. 本地装（npm + node，三平台通用）
 
 ```sh
-npm i -g ./ieidev-team-0.5.2.tgz
+npm i -g ./ieidev-team-0.5.3.tgz
 ieidev-team
 ```
 
 装机做三件事，**幂等、可重跑**：注册 marketplace（用**包内本地路径**）→ 装插件 `ieidev-team@ieidev` → 接状态栏。装好后状态栏出现 `ieidev 团队 …`；重载插件（`/reload-plugins`）或重启 session 后生效。
 
 > **为什么不碰 registry / 源码仓**：installer（`bin/cli.js` / `install.sh`）检测到包内 `.claude-plugin/marketplace.json`，直接用**包内本地路径** `marketplace add`、`plugin install` 把插件复制进 `~/.claude/plugins/cache/`。所以装机只需这个 `.tgz`，无需 npm 账号、无需访问源码仓。`npx ieidev-team` **不可用**（不发 registry）。
-> **unix / WSL / Git Bash** 另可解包跑脚本：`tar xzf ieidev-team-0.5.2.tgz && cd package && bash install.sh`（与上面 npm 装法共用同一幂等决策核）。
+> **unix / WSL / Git Bash** 另可解包跑脚本：`tar xzf ieidev-team-0.5.3.tgz && cd package && bash install.sh`（与上面 npm 装法共用同一幂等决策核）。
 
 常用开关（`ieidev-team --help` 看全部）：
 
